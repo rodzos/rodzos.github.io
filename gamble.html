@@ -111,7 +111,7 @@ end
 on view do
  secret_widget: work.widgets["secret"]
  if secret_widget.text = ""
-  day = floor(sys.now/86400) - 19984
+  day: floor(sys.now/86400) - 19984
   work.widgets["field1"].text: "Gamble #%i" format day
   work.widgets["field1"].show: "none"
   work.widgets["field2"].text: ""
@@ -350,7 +350,7 @@ end
 
 </script>
 
-<a id="target" style="display:none" download="Gamble.html" href="blob:https://beyondloom.com/b9951d87-bf50-4ad8-8aee-6d7196c2697b"></a>
+<a id="target" style="display:none" download="Gamble.deck" href="blob:https://beyondloom.com/0194e88a-5c2e-4128-a499-639906617514"></a>
 <img id="loader" style="display:none">
 <input id="source" type="file" style="display:none" accept=".html,.deck">
 <canvas id="render" style="display:none" width="512" height="342"></canvas>
