@@ -389,7 +389,7 @@ on click do
    completion: "%s/6" format if (w = "GGGGG") (guesses.text + 1) else "X" end
    link: "https://rodzos.github.io/bootle"
    prevw: each i in range (guesses.text + 0)
-    wordle[sec home.widgets["guess%i" format i + 1].word]
+    wordle[home.widgets["guess%i" format i + 1].word sec]
    end
    fields[0].text: "\n" fuse fields[0].text, completion, prevw, w, link
    fields[0].show: "solid"
@@ -531,15 +531,15 @@ canvas:{"type":"canvas","size":[96,24],"pos":[12,30],"locked":1,"border":0,"patt
 
 </script>
 
-<a id="target" style="display:none" download="Bootle.deck" href="blob:https://beyondloom.com/fc9f3f8c-8e90-45e3-ae64-508135ef873c"></a>
+<a id="target" style="display:none"></a>
 <img id="loader" style="display:none">
 <input id="source" type="file" style="display:none" accept=".html,.deck">
 <canvas id="render" style="display:none" width="512" height="342"></canvas>
 <canvas id="lrender" style="display:none" width="45" height="344"></canvas>
 <canvas id="rrender" style="display:none" width="45" height="344"></canvas>
-<canvas width="90" height="688" id="ltools"></canvas>
+<canvas width="0" height="0" id="ltools"></canvas>
 <canvas id="display" width="1024" height="684" style="cursor: default;"></canvas>
-<canvas width="90" height="688" id="rtools"></canvas>
+<canvas width="0" height="0" id="rtools"></canvas>
 <style>
 html,body{height:100%;}
 body{background:black;margin:0;display:flex;align-items:center;justify-content:space-between;-webkit-user-select:none;user-select:none;}
@@ -547,7 +547,7 @@ body{touch-action:none;overflow:hidden;}
 </style>
 <script>
 
-VERSION="1.51"
+VERSION="1.52"
 
 DANGEROUS=0
 
@@ -1333,6 +1333,7 @@ n_readxml=([x])=>{
 n_random=z=>{
 	const randint=x=>{let y=seed;y^=(y<<13),y^=(y>>>17),(y^=(y<<15));return mod(seed=y,x);} // xorshift32
 	const randelt=x=>lin(x)?lmn(randint(ln(x))): count(x)<1?NONE: l_at(x,lmn(randint(count(x))))
+	if(z.length==0){randint(1);return lmn((seed&0x7FFFFFFF)/0x7FFFFFFF)}
 	let x=z[0]||NONE;if(lid(x))x=monad.range(x);if(z.length<2)return randelt(x)
 	const y=ln(z[1]);if(y>=0){const r=[];for(let z=0;z<y;z++)r.push(randelt(x));return lml(r);}
 	x=lin(x)?monad.range(x).v:ll(x);const p=range(x.length),r=[]
@@ -1667,7 +1668,7 @@ draw_line_simple=(r,brush,pattern)=>{
 }
 draw_line_custom=(r,mask,pattern)=>{
 	let dx=abs(r.w-r.x), dy=-abs(r.h-r.y), err=dx+dy, sx=r.x<r.w ?1:-1, sy=r.y<r.h?1:-1, ms=mask.size, mc=rint(rdiv(ms,2));while(1){
-		for(let b=0;b<ms.y;b++)for(let a=0;a<ms.x;a++){const h=rect(r.x+a-mc.x,r.y+b-mc.y);if(mask.pix[a+b*ms.x]&&inclip(h))pix(h,pattern)}
+		for(let b=0;b<ms.y;b++)for(let a=0;a<ms.x;a++){const h=rect(r.x+a-mc.x,r.y+b-mc.y), mp=mask.pix[a+b*ms.x];if(mp&&inclip(h))pix(h,mp==1?pattern: mp==47?1: mp)}
 		if(r.x==r.w&&r.y==r.h)break;let e2=err*2; if(e2>=dy)err+=dy,r.x+=sx; if(e2<=dx)err+=dx,r.y+=sy
 	}
 }
@@ -1677,7 +1678,7 @@ draw_line_function=(r,func,pattern)=>{
 		state.e=[e],state.t=[],state.pcs=[];issue(e,p);let quota=BRUSH_QUOTA;while(quota&&running())runop(),quota--;const v=running()?NONE:arg()
 		if(image_is(v)){
 			const ms=v.size, mc=rint(rdiv(ms,2))
-			for(let b=0;b<ms.y;b++)for(let a=0;a<ms.x;a++){const h=rect(r.x+a-mc.x,r.y+b-mc.y);if(v.pix[a+b*ms.x]&&inclip(h))pix(h,pattern)}
+			for(let b=0;b<ms.y;b++)for(let a=0;a<ms.x;a++){const h=rect(r.x+a-mc.x,r.y+b-mc.y), mp=v.pix[a+b*ms.x];if(mp&&inclip(h))pix(h,mp==1?pattern: mp==47?1: mp)}
 		}if(r.x==r.w&&r.y==r.h)break;let e2=err*2; if(e2>=dy)err+=dy,r.x+=sx; if(e2<=dx)err+=dx,r.y+=sy; a.v[1]=NONE
 	}popstate()
 }
@@ -6493,7 +6494,7 @@ toolbars=_=>{
 	}
 	const cbrushbtn=(pos,dn,b,brush,bt)=>{
 		const icon=bt.v[brush-24],oc=frame.clip;frame.clip=b
-		draw_icon(rcenter(b,icon.size),icon,1),frame.clip=oc,draw_box(b,0,1)
+		image_paste(rcenter(b,icon.size),b,icon,frame.image,1),frame.clip=oc,draw_box(b,0,1)
 		if(dr.brush==brush)draw_box(inset(b,2),0,1)
 		if(!rin(b,pos))return;uicursor=cursor.point;if(!ev.mu||!rin(b,dn))return
 		setmode('draw');if(dr.tool=='select'||dr.tool=='lasso'||dr.tool=='fill')settool('pencil');dr.brush=brush
